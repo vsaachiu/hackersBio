@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyber Profile Challenge | Ethical Hackers Club</title>
+  <style>
+    :root {
+      --bg-main: #080c14;
+      --bg-card: #0f172a;
+      --bg-card-alt: #131d35;
+      --border-color: #1e293b;
+      --border-glow: #00ffcc33;
+      --primary: #00ffcc;
+      --primary-glow: rgba(0, 255, 204, 0.4);
+      --secondary: #ff007f;
+      --secondary-glow: rgba(255, 0, 127, 0.35);
+      --accent: #38bdf8;
+      --warning: #f59e0b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --font-mono: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding-bottom: 5rem;
+      background-image: 
+        radial-gradient(ellipse at 15% 10%, rgba(0, 255, 204, 0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at 85% 85%, rgba(255, 0, 127, 0.07) 0%, transparent 45%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Header Banner */
+    header {
+      text-align: center;
+      padding: 2.5rem 1rem 2rem;
+      position: relative;
+    }
+
+    .badge-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(0, 255, 204, 0.1);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      margin-bottom: 1rem;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 40%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.75rem;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Timer Arena */
+    .timer-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2.5rem 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timer-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      transition: width 0.3s ease;
+    }
+
+    .phases-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 720px) {
+      .phases-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .phase-pill {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .phase-pill.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 20px var(--primary-glow);
+      background: rgba(0, 255, 204, 0.04);
+    }
+
+    .phase-pill.locked {
+      opacity: 0.6;
+      border-style: dashed;
+      filter: grayscale(0.8);
+    }
+
+    .phase-pill.unlocked {
+      opacity: 1;
+      border-color: var(--secondary);
+      box-shadow: 0 0 20px var(--secondary-glow);
+      background: rgba(255, 0, 127, 0.04);
+      filter: none;
+    }
+
+    .phase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .phase-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .phase-status {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .status-running {
+      background: rgba(0, 255, 204, 0.2);
+      color: var(--primary);
+    }
+
+    .status-locked {
+      background: rgba(148, 163, 184, 0.2);
+      color: var(--text-muted);
+    }
+
+    .status-unlocked {
+      background: rgba(255, 0, 127, 0.2);
+      color: var(--secondary);
+    }
+
+    .timer-display {
+      text-align: center;
+      padding: 1.5rem 0;
+    }
+
+    .time-digits {
+      font-family: var(--font-mono);
+      font-size: clamp(3rem, 8vw, 4.8rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--primary);
+      text-shadow: 0 0 25px var(--primary-glow);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .time-digits.ai-mode {
+      color: var(--secondary);
+      text-shadow: 0 0 25px var(--secondary-glow);
+    }
+
+    .timer-caption {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .timer-controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      font-family: var(--font-sans);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #05101a;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-alt);
+      border-color: var(--text-muted);
+    }
+
+    .btn-unlock {
+      background: rgba(255, 0, 127, 0.15);
+      color: var(--secondary);
+      border-color: var(--secondary);
+    }
+
+    .btn-unlock:hover {
+      background: var(--secondary);
+      color: #fff;
+      box-shadow: 0 0 20px var(--secondary-glow);
+    }
+
+    /* Specs Grid */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+
+    .spec-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .spec-icon {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+      display: inline-block;
+    }
+
+    .spec-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .spec-card ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .spec-card li {
+      position: relative;
+      padding-left: 1.4rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    .spec-card li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    /* Reference Toolkit (Accordion) */
+    .accordion-group {
+      margin-bottom: 3rem;
+    }
+
+    .accordion-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+
+    .accordion-item:focus-within,
+    .accordion-item:hover {
+      border-color: rgba(0, 255, 204, 0.4);
+    }
+
+    .accordion-header {
+      width: 100%;
+      background: transparent;
+      border: none;
+      padding: 1.1rem 1.4rem;
+      color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .accordion-header span.category {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--primary);
+      margin-right: 0.5rem;
+    }
+
+    .accordion-icon {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: transform 0.25s ease;
+    }
+
+    .accordion-item.open .accordion-icon {
+      transform: rotate(180deg);
+      color: var(--primary);
+    }
+
+    .accordion-body {
+      display: none;
+      padding: 1.25rem 1.4rem;
+      border-top: 1px solid var(--border-color);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .accordion-item.open .accordion-body {
+      display: block;
+    }
+
+    .code-block {
+      background: #060911;
+      border: 1px solid #1a2234;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 0.85rem 0;
+      position: relative;
+    }
+
+    pre code {
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+      color: #7dd3fc;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #94a3b8;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.55rem;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      color: #fff;
+      background: #334155;
+    }
+
+    /* Submission Callout */
+    .submit-card {
+      background: linear-gradient(135deg, rgba(0, 255, 204, 0.08), rgba(255, 0, 127, 0.08));
+      border: 1px solid rgba(0, 255, 204, 0.3);
+      border-radius: 16px;
+      padding: 2.2rem;
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    .submit-card h2 {
+      font-size: 1.7rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .submit-card p {
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .checklist-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .check-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.82rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .check-pill.ready {
+      color: var(--primary);
+      border-color: rgba(0, 255, 204, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header -->
+    <header>
+      <div class="badge-tag">⚡ Ethical Hackers Club Workshop</div>
+      <h1>Project Cyber-Profile: The Flash Page Challenge</h1>
+      <p class="subtitle">
+        Design and engineer the most stylish, expressive, and interactive single-file web profile about yourself using pure HTML, CSS, and JavaScript.
+      </p>
+    </header>
+
+    <!-- Interactive Timer & Phase Control -->
+    <div class="timer-card">
+      <div class="phases-grid">
+        <!-- Phase 1 -->
+        <div class="phase-pill active" id="phase1Pill">
+          <div class="phase-header">
+            <span class="phase-title">Phase 1: Pure Brainpower</span>
+            <span class="phase-status status-running" id="phase1Status">Active</span>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">
+            <strong>NO AI TOOLS ALLOWED.</strong> Use your own memory, developer tools, and the collapsible syntax guides below.
+          </p>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase-pill locked" id="phase2Pill">
+          <div class="phase-header">
+            <span class="phase-title">Phase 2: AI Unleashed 🤖</span>
+            <span class="phase-status status-locked" id="phase2Status">🔒 Locked</span>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">
+            <strong>AI CO-PILOTS UNLOCKED.</strong> You may use ChatGPT, Claude, or any LLM to generate complex animations, canvas particles, and sound FX.
+          </p>
+        </div>
+      </div>
+
+      <!-- Clock Display -->
+      <div class="timer-display">
+        <div class="time-digits" id="timeDisplay">20:00</div>
+        <div class="timer-caption" id="phaseCaption">PHASE 1 IN PROGRESS — NO AI ALLOWED</div>
+      </div>
+
+      <!-- Controls -->
+      <div class="timer-controls">
+        <button class="btn btn-primary" id="startPauseBtn" onclick="toggleTimer()">Start Clock</button>
+        <button class="btn btn-secondary" onclick="resetTimer(20)">Reset (20 min)</button>
+        <button class="btn btn-secondary" onclick="resetTimer(10)">Sprint (10 min)</button>
+        <button class="btn btn-unlock" id="forcePhase2Btn" onclick="unlockPhase2()">⚡ Unlock Phase 2 (AI)</button>
+      </div>
+    </div>
+
+    <!-- Requirements & Specs -->
+    <h2 class="section-title"><span>📋</span> Challenge Specifications</h2>
+    <div class="specs-grid">
+      <div class="spec-card">
+        <span class="spec-icon">👤</span>
+        <h3>1. Identity & Core Specs</h3>
+        <ul>
+          <li><strong>Your Name</strong> (or your Hacker Handle / Pseudonym).</li>
+          <li><strong>A Photo or Avatar</strong> (linked image URL, customized DiceBear avatar, or SVG).</li>
+          <li><strong>A "Bio" Section</strong> highlighting your skills, hacker tier, interests, or favorite tech.</li>
+        </ul>
+      </div>
+
+      <div class="spec-card">
+        <span class="spec-icon">✨</span>
+        <h3>2. "Flash" & Interactivity</h3>
+        <ul>
+          <li><strong>Neon / Glitch / Cyber Aesthetic:</strong> Custom styles, dark palettes, or cyber typography.</li>
+          <li><strong>Interactive Element:</strong> At least one working JS trigger (button sounds, theme toggle, particle canvas, or secret Easter egg).</li>
+          <li><strong>Single-File Mandate:</strong> Everything inside <strong>one <code>.html</code> file</strong> (styles in <code>&lt;style&gt;</code>, logic in <code>&lt;script&gt;</code>).</li>
+        </ul>
+      </div>
+
+      <div class="spec-card">
+        <span class="spec-icon">⚖️</span>
+        <h3>3. Two-Phase Protocol</h3>
+        <ul>
+          <li><strong>Phase 1:</strong> Absolutely no prompting LLMs or code generators. Build the foundation by hand.</li>
+          <li><strong>Phase 2:</strong> Wait for the host or clock to sound before firing up AI assistants.</li>
+          <li><strong>Export Ready:</strong> Test by double-clicking the file locally to ensure it opens in any browser.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Collapsible Guides -->
+    <h2 class="section-title"><span>🧰</span> Collapsible Reference Toolkit (Syntax Cheatsheet)</h2>
+    <div class="accordion-group">
+      
+      <!-- Item 1: HTML Skeleton & Elements -->
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <div><span class="category">[HTML]</span> Document Foundation & Image Boilerplate</div>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-body">
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            Copy this bare-bones single-file template to start your build:
+          </p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Agent Profile&lt;/title&gt;
+  &lt;style&gt;
+    body { background: #0b0f19; color: #fff; font-family: sans-serif; text-align: center; padding: 2rem; }
+    .avatar { width: 140px; height: 140px; border-radius: 50%; border: 3px solid #00ffcc; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- Replace image URL with your own or a bot avatar --&gt;
+  &lt;img src="https://api.dicebear.com/7.x/bottts/svg?seed=ShadowCoder" alt="Avatar" class="avatar"&gt;
+  &lt;h1&gt;Agent Cipher&lt;/h1&gt;
+  &lt;p&gt;Junior Penetration Tester &amp; Cyber Enthusiast.&lt;/p&gt;
+  &lt;button onclick="triggerHack()"&gt;Deploy Exploit&lt;/button&gt;
+
+  &lt;script&gt;
+    function triggerHack() {
+      alert("System Overload Initialized!");
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 2: CSS Cyber Effects -->
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <div><span class="category">[CSS]</span> Neon Glows, Gradients, & Cyber Hover Effects</div>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-body">
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            Drop these visual rules into your <code>&lt;style&gt;</code> block to give your page instant flair:
+          </p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code>/* Neon Glowing Headline */
+h1 {
+  color: #00ffcc;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.7),
+               0 0 25px rgba(0, 255, 204, 0.4),
+               0 0 50px rgba(0, 255, 204, 0.2);
+}
+
+/* Glassmorphism Card Container */
+.card {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  margin: 2rem auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* Interactive Cyber Button with Smooth Lift */
+button {
+  background: #ff007f;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+}
+
+button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 0, 127, 0.8);
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 3: JS Audio Synthesizer -->
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <div><span class="category">[JS]</span> Synth Beeper (Zero Audio Files Needed!)</div>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-body">
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            Use the browser's native Web Audio API to create arcade beeps and hacker sound FX without downloading external MP3s:
+          </p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code>// Play an 8-bit style beep using browser synth
+function playLaserSound() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(880, ctx.currentTime); // 880Hz tone
+  osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.2); // pitch slide down
+
+  gain.gain.setValueAtTime(0.3, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start();
+  osc.stop(ctx.currentTime + 0.2);
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 4: Matrix Rain Animation -->
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <div><span class="category">[JS + Canvas]</span> The 20-Line Matrix Rain Background</div>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-body">
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            Place a <code>&lt;canvas id="matrix"&gt;&lt;/canvas&gt;</code> behind your content to add the iconic green digital rain:
+          </p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre><code>// Place inside your &lt;script&gt; tag:
+const canvas = document.createElement('canvas');
+canvas.style.position = 'fixed';
+canvas.style.top = '0';
+canvas.style.left = '0';
+canvas.style.zIndex = '-1';
+document.body.appendChild(canvas);
+
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const chars = '0123456789ABCDEF@#$%*&amp;';
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+
+function draw() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00ffcc';
+  ctx.font = fontSize + 'px monospace';
+
+  drops.forEach((y, i) =&gt; {
+    const text = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(text, i * fontSize, y * fontSize);
+    if (y * fontSize &gt; canvas.height &amp;&amp; Math.random() &gt; 0.975) drops[i] = 0;
+    drops[i]++;
+  });
+}
+setInterval(draw, 33);</code></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Final Submission -->
+    <div class="submit-card">
+      <h2>🚀 Ready to Deploy?</h2>
+      <p>
+        Double-check your file before uploading. Ensure all styles, scripts, and links run locally without server dependencies!
+      </p>
+
+      <div class="checklist-pills">
+        <span class="check-pill ready">✓ Has Name / Handle</span>
+        <span class="check-pill ready">✓ Has Photo / Avatar</span>
+        <span class="check-pill ready">✓ Has Bio</span>
+        <span class="check-pill ready">✓ Single .html File</span>
+        <span class="check-pill ready">✓ Works Offline / Locally</span>
+      </div>
+
+      <!-- Replace '#' with your actual Google Form URL -->
+      <a href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 0.9rem 2.2rem; font-size: 1.05rem;">
+        📥 Submit Your HTML on Google Form
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    // Timer & Phase Logic
+    let totalSeconds = 20 * 60; // 20 minutes default for Phase 1
+    let isRunning = false;
+    let timerInterval = null;
+    let currentPhase = 1; // 1 = Human Only, 2 = AI Active
+
+    const timeDisplay = document.getElementById('timeDisplay');
+    const startPauseBtn = document.getElementById('startPauseBtn');
+    const phaseCaption = document.getElementById('phaseCaption');
+    const phase1Pill = document.getElementById('phase1Pill');
+    const phase2Pill = document.getElementById('phase2Pill');
+    const phase1Status = document.getElementById('phase1Status');
+    const phase2Status = document.getElementById('phase2Status');
+
+    function updateDisplay() {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      timeDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function toggleTimer() {
+      if (isRunning) {
+        clearInterval(timerInterval);
+        isRunning = false;
+        startPauseBtn.textContent = 'Resume Clock';
+        startPauseBtn.classList.remove('btn-secondary');
+        startPauseBtn.classList.add('btn-primary');
+      } else {
+        isRunning = true;
+        startPauseBtn.textContent = 'Pause Clock';
+        startPauseBtn.classList.remove('btn-primary');
+        startPauseBtn.classList.add('btn-secondary');
+
+        timerInterval = setInterval(() => {
+          if (totalSeconds > 0) {
+            totalSeconds--;
+            updateDisplay();
+          } else {
+            clearInterval(timerInterval);
+            isRunning = false;
+            startPauseBtn.textContent = 'Phase Finished';
+            if (currentPhase === 1) {
+              unlockPhase2();
+            }
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer(minutes) {
+      clearInterval(timerInterval);
+      isRunning = false;
+      totalSeconds = minutes * 60;
+      updateDisplay();
+      startPauseBtn.textContent = 'Start Clock';
+      startPauseBtn.classList.remove('btn-secondary');
+      startPauseBtn.classList.add('btn-primary');
+    }
+
+    function unlockPhase2() {
+      currentPhase = 2;
+      
+      // Update Pills
+      phase1Pill.classList.remove('active');
+      phase1Pill.style.opacity = '0.7';
+      phase1Status.textContent = 'Completed';
+      phase1Status.className = 'phase-status status-locked';
+
+      phase2Pill.classList.remove('locked');
+      phase2Pill.classList.add('unlocked');
+      phase2Status.textContent = '⚡ Active (AI OK)';
+      phase2Status.className = 'phase-status status-unlocked';
+
+      // Update Clock Styles
+      timeDisplay.classList.add('ai-mode');
+      phaseCaption.textContent = '🔥 PHASE 2: AI UNLEASHED — PROMPT & BUILD!';
+      phaseCaption.style.color = 'var(--secondary)';
+
+      // Reset to 15 min for Phase 2 if running
+      resetTimer(15);
+      toggleTimer();
+
+      // Audio notification beep
+      playCheerTone();
+    }
+
+    function playCheerTone() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const freqs = [440, 554, 659, 880];
+        freqs.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.2, ctx.currentTime + idx * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + idx * 0.1 + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.1);
+          osc.stop(ctx.currentTime + idx * 0.1 + 0.3);
+        });
+      } catch (e) {
+        console.log('AudioContext not allowed yet');
+      }
+    }
+
+    // Accordion Toggle
+    function toggleAccordion(button) {
+      const item = button.parentElement;
+      const isOpen = item.classList.contains('open');
+
+      // Close all other items
+      document.querySelectorAll('.accordion-item').forEach(el => el.classList.remove('open'));
+
+      if (!isOpen) {
+        item.classList.add('open');
+      }
+    }
+
+    // Copy Code Helper
+    function copyCode(btn) {
+      const pre = btn.nextElementSibling;
+      const code = pre.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+      });
+    }
+
+    // Initial render
+    updateDisplay();
+  </script>
+</body>
+</html>
